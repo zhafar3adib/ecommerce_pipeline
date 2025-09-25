@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  webserver:
+    build: .
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
+      AIRFLOW__WEBSERVER__SECRET_KEY: supersecretkey123   #use same key within all service
+      GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/credentials/credentials.json
+      GCP_PROJECT_ID: purwadika #change into your gcp project_id
+    depends_on:
+      - postgres
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./dags/scripts:/opt/airflow/dags/scripts
+      - ./generated_dummy_data:/opt/airflow/generated_dummy_data
+      - ./credentials:/opt/airflow/credentials
+    ports:
+      - "8080:8080"
+    command: bash -c "airflow webserver"
+    restart: unless-stopped
+
+  scheduler:
+    build: .
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__WEBSERVER__SECRET_KEY: supersecretkey123   #use same key within all service
+      GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/credentials/credentials.json
+      GCP_PROJECT_ID: purwadika #change into your gcp project_id
+    depends_on:
+      - postgres
+      - webserver
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./dags/scripts:/opt/airflow/dags/scripts
+      - ./generated_dummy_data:/opt/airflow/generated_dummy_data
+      - ./credentials:/opt/airflow/credentials
+    command: bash -c "airflow scheduler"
+    restart: unless-stopped

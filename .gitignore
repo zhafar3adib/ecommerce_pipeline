@@ -1,0 +1,5 @@
+*.json
+dags/__pycache__
+dags/scripts/__pycache__
+pgdata/
+generated_dummy_data

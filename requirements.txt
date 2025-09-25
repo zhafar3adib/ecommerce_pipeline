@@ -1,0 +1,4 @@
+faker
+pandas
+google-cloud-bigquery
+pyarrow
