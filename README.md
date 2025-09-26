@@ -10,6 +10,11 @@ tools needed:
 - **google bigquery** for data mart and data lake
 - **docker** to create image container
 
+Before using this pipeline, it's recommend to run this command first to build the docker image:
+ -     docker-compose run --rm webserver airflow db init
+ -     docker-compose build
+ -     docker-compose up -d
+   
 This pipeline will divided into 3 dag task, you can see the detail in [dags](https://github.com/zhafar3adib/ecommerce_pipeline/tree/main/dags) folder 
 ## 1. generate task
 Generate dummy ecommerce transaction data and also create list of campaign detail, the transaction that happen between campaign periode will automatically listed as transaction that will get discount.
